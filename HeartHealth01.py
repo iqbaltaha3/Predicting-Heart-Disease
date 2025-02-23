@@ -51,7 +51,7 @@ def main():
         st.error("Model could not be loaded. Please check your model file.")
         return
 
-    # Define categorical mapping with original category names.
+    # Define categorical mapping with original category labels.
     categorical_mapping = {
         "sex": {0: "Female", 1: "Male"},
         "cp": {0: "Typical Angina", 1: "Atypical Angina", 2: "Non-Anginal Pain", 3: "Asymptomatic"},
@@ -63,6 +63,87 @@ def main():
         "thal": {0: "Normal", 1: "Fixed Defect", 2: "Reversible Defect", 3: "Unknown"}
     }
 
+    # Detailed explanations for each feature.
+    feature_explanations = {
+        "age": (
+            "**What:** Age of the patient (in years).\n\n"
+            "**Why:** Older age is associated with higher risk of heart disease.\n\n"
+            "**When:** Recorded at the time of clinical evaluation.\n\n"
+            "**Where:** Typically obtained from patient records.\n\n"
+            "**How:** Self-reported or verified during a clinical visit."
+        ),
+        "sex": (
+            "**What:** Biological gender of the patient.\n\n"
+            "**Why:** Risk factors and prevalence of heart disease differ by sex.\n\n"
+            "**When:** Recorded during patient intake.\n\n"
+            "**Where:** Patient records or clinical forms.\n\n"
+            "**How:** Coded as 0 (Female) or 1 (Male)."
+        ),
+        "cp": (
+            "**What:** Type of chest pain experienced.\n\n"
+            "**Why:** Different chest pain types indicate different levels of cardiac risk.\n\n"
+            "**When:** Assessed during patient evaluation.\n\n"
+            "**Where:** Clinical diagnosis.\n\n"
+            "**How:** Encoded as 0 (Typical Angina), 1 (Atypical Angina), 2 (Non-Anginal Pain), or 3 (Asymptomatic)."
+        ),
+        "trestbps": (
+            "**What:** Resting blood pressure (mm Hg).\n\n"
+            "**Why:** High blood pressure is a known risk factor for heart disease.\n\n"
+            "**When:** Measured at rest during clinical evaluation.\n\n"
+            "**Where:** In a clinical setting using a sphygmomanometer.\n\n"
+            "**How:** Recorded as a numeric value."
+        ),
+        "chol": (
+            "**What:** Serum cholesterol level (mg/dl).\n\n"
+            "**Why:** Elevated cholesterol is linked to increased heart disease risk.\n\n"
+            "**When:** Measured after fasting.\n\n"
+            "**Where:** In a laboratory test.\n\n"
+            "**How:** Reported as a numeric value."
+        ),
+        "fbs": (
+            "**What:** Fasting blood sugar > 120 mg/dl.\n\n"
+            "**Why:** Indicates possible diabetes, which is a risk factor for heart disease.\n\n"
+            "**When:** Measured after fasting.\n\n"
+            "**Where:** In a clinical lab test.\n\n"
+            "**How:** Coded as 0 (False) or 1 (True)."
+        ),
+        "restecg": (
+            "**What:** Resting electrocardiographic results.\n\n"
+            "**Why:** Provides information on heart's electrical activity and abnormalities.\n\n"
+            "**When:** Taken at rest during evaluation.\n\n"
+            "**Where:** In a clinical setting using an ECG machine.\n\n"
+            "**How:** Encoded as 0 (Normal), 1 (ST-T Wave Abnormality), or 2 (Left Ventricular Hypertrophy)."
+        ),
+        "exang": (
+            "**What:** Exercise-induced angina.\n\n"
+            "**Why:** Indicates the heart's response to physical stress.\n\n"
+            "**When:** Assessed during a stress test.\n\n"
+            "**Where:** In a clinical setting.\n\n"
+            "**How:** Coded as 0 (No) or 1 (Yes)."
+        ),
+        "slope": (
+            "**What:** Slope of the peak exercise ST segment.\n\n"
+            "**Why:** Reflects the heart's response to exercise stress.\n\n"
+            "**When:** Measured during an exercise test.\n\n"
+            "**Where:** In a clinical ECG.\n\n"
+            "**How:** Encoded as 0 (Upsloping), 1 (Flat), or 2 (Downsloping)."
+        ),
+        "ca": (
+            "**What:** Number of major vessels (0-3) colored by fluoroscopy.\n\n"
+            "**Why:** Indicates the extent of arterial blockage in the heart.\n\n"
+            "**When:** Determined during an angiographic exam.\n\n"
+            "**Where:** In a hospital setting during diagnostic imaging.\n\n"
+            "**How:** Reported as a numeric code from 0 to 3."
+        ),
+        "thal": (
+            "**What:** Thalassemia status.\n\n"
+            "**Why:** Abnormalities in blood can affect oxygen transport, influencing heart risk.\n\n"
+            "**When:** Assessed during blood tests.\n\n"
+            "**Where:** In a clinical laboratory.\n\n"
+            "**How:** Encoded as 0 (Normal), 1 (Fixed Defect), 2 (Reversible Defect), or 3 (Unknown)."
+        )
+    }
+
     # Collect user inputs.
     user_inputs = {}
     for feat in features:
@@ -70,12 +151,16 @@ def main():
             if feat in categorical_mapping:
                 mapping = categorical_mapping[feat]
                 options = list(mapping.values())
-                selected = st.selectbox(f"Select value for {feat}:", options)
-                # Convert the selected category back to its numeric code.
+                selected = st.selectbox(f"Select value for **{feat}**:", options, key=feat)
+                # Convert selected label back to its encoded value.
                 encoded = [k for k, v in mapping.items() if v == selected][0]
                 user_inputs[feat] = encoded
             else:
-                user_inputs[feat] = st.number_input(f"Enter value for {feat}:", value=0.0, format="%.2f")
+                user_inputs[feat] = st.number_input(f"Enter value for **{feat}**:", value=0.0, format="%.2f", key=feat)
+            # Add an expander for detailed explanation.
+            with st.expander(f"Know more about **{feat}**"):
+                explanation = feature_explanations.get(feat, "No detailed explanation available for this feature.")
+                st.markdown(explanation)
         except Exception as e:
             st.error(f"Error with input for {feat}: {e}")
 
@@ -97,6 +182,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
