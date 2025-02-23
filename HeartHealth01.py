@@ -56,11 +56,28 @@ def prediction_section():
         st.error("Model could not be loaded. Please check the model file and try again.")
         return
 
+    # Define known categorical features with their possible options.
+    categorical_options = {
+        "sex": [0, 1],
+        "cp": [0, 1, 2, 3],
+        "fbs": [0, 1],
+        "restecg": [0, 1, 2],
+        "exang": [0, 1],
+        "slope": [0, 1, 2],
+        "ca": [0, 1, 2, 3],
+        "thal": [0, 1, 2, 3]
+    }
+
     # Collect user inputs for each feature.
     user_inputs = {}
     for feat in features:
         try:
-            user_input = st.number_input(f"Enter value for {feat}:", value=0.0, format="%.2f")
+            if feat in categorical_options:
+                # Use a selectbox for categorical features.
+                user_input = st.selectbox(f"Select value for {feat}:", options=categorical_options[feat])
+            else:
+                # Use a number input for numerical features.
+                user_input = st.number_input(f"Enter value for {feat}:", value=0.0, format="%.2f")
             user_inputs[feat] = user_input
         except Exception as e:
             st.error(f"Error with input for {feat}: {e}")
@@ -87,6 +104,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
