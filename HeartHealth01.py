@@ -56,29 +56,35 @@ def prediction_section():
         st.error("Model could not be loaded. Please check the model file and try again.")
         return
 
-    # Define known categorical features with their possible options.
-    categorical_options = {
-        "sex": [0, 1],
-        "cp": [0, 1, 2, 3],
-        "fbs": [0, 1],
-        "restecg": [0, 1, 2],
-        "exang": [0, 1],
-        "slope": [0, 1, 2],
-        "ca": [0, 1, 2, 3],
-        "thal": [0, 1, 2, 3]
+    # Define mapping for categorical columns with original categories.
+    # Update these mappings as per your dataset if needed.
+    categorical_mapping = {
+        "sex": {0: "Female", 1: "Male"},
+        "cp": {0: "Typical Angina", 1: "Atypical Angina", 2: "Non-Anginal Pain", 3: "Asymptomatic"},
+        "fbs": {0: "False", 1: "True"},
+        "restecg": {0: "Normal", 1: "ST-T Wave Abnormality", 2: "Left Ventricular Hypertrophy"},
+        "exang": {0: "No", 1: "Yes"},
+        "slope": {0: "Upsloping", 1: "Flat", 2: "Downsloping"},
+        "ca": {0: "0", 1: "1", 2: "2", 3: "3"},
+        "thal": {0: "Normal", 1: "Fixed Defect", 2: "Reversible Defect", 3: "Unknown"}
     }
 
     # Collect user inputs for each feature.
     user_inputs = {}
     for feat in features:
         try:
-            if feat in categorical_options:
-                # Use a selectbox for categorical features.
-                user_input = st.selectbox(f"Select value for {feat}:", options=categorical_options[feat])
+            if feat in categorical_mapping:
+                # Create a dropdown with the original category labels.
+                mapping = categorical_mapping[feat]
+                options = list(mapping.values())
+                selected_label = st.selectbox(f"Select value for {feat}:", options=options)
+                # Convert the selected label back to its encoded value.
+                encoded_value = [k for k, v in mapping.items() if v == selected_label][0]
+                user_inputs[feat] = encoded_value
             else:
-                # Use a number input for numerical features.
+                # For numerical features, use a number input.
                 user_input = st.number_input(f"Enter value for {feat}:", value=0.0, format="%.2f")
-            user_inputs[feat] = user_input
+                user_inputs[feat] = user_input
         except Exception as e:
             st.error(f"Error with input for {feat}: {e}")
 
@@ -104,6 +110,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
